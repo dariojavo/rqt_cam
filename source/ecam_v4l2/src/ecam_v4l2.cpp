@@ -95,12 +95,12 @@ int main(int argc, char ** argv)
         {
               srv.get_camera_index(*cnt,&current_device);
               // checking whether the camera is streamed on.
-              if(cam[current_device].isStreamOn()){
+              if(cam[current_device].isStreamOn()){       
                   ecam_v4l2::image image;
                   // Capturing image from the camera.
                   ret=cam[current_device].capture(&image);
                   if(ret==SUCCESS) // if capture is successful.
-                  {
+                  {   
                       // Publishing the image captured from the camera
                       srv.publisher[current_device].publish(image);
 
