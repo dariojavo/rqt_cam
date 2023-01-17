@@ -8,7 +8,8 @@ from ecam_v4l2.msg import image
 import numpy as np
 import cv2
 from cv_bridge import CvBridge
-import v4l2
+from collections import defaultdict
+#import v4l2
 
 if __name__ == '__main__':
 
@@ -18,53 +19,90 @@ if __name__ == '__main__':
     # name for our 'listener' node so that multiple listeners can
     # run simultaneously.
     rospy.init_node('cameras_parameters', anonymous=True)
-    
-    # # wait for this sevice to be running
-    rospy.wait_for_service('SetControl')
 
-    # Create the connection to the service. Remember it's a Trigger service
-    set_camera_parameters = rospy.ServiceProxy('SetControl', set_control)
+    ### Read all camera controls menu from each camera ###
 
-    A = set_controlRequest()
-
-    A.cam_name = 'See3CAM_24CUG_062B930B'
-    A.id = 9963777
-    A.value = 25
-
-    set_camera_parameters(A)
-
-    # Create the connection to the service. Remember it's a Trigger service
-    camera_parameters = rospy.ServiceProxy('QueryControl', query_control, persistent= True)
-    
     # wait for this sevice to be running
     rospy.wait_for_service('QueryControl')
     
     # Create an object of the type TriggerRequest. We nned a TriggerRequest for a Trigger service
     req = query_controlRequest()
 
+    # Get current available topics
     topics = rospy.get_published_topics()
 
+    # Get all See3CAM availables
     cameras = []
     for topic in topics:
         for words in topic:
             if  'See3CAM' in words:
-                cameras.append(words)
+                if 'view' not in words:
+                    cameras.append(words)
 
     print('Detected cameras: ')
     print(cameras)
 
+    # Create the connection to the service. Remember it's a Trigger service
+    camera_parameters = rospy.ServiceProxy('QueryControl', query_control, persistent= True)
 
+    # Dict = {}
+    # iterator = 0
+    # cam_id = []
+    # for cam in cameras:
+    #     iterator +=1
+    #     cam_id.append(cam.replace('/',''))
+    Dict = {cam.replace('/','') for cam in cameras }
+    print(Dict)
+    
+    out = {} #defaultdict(dict)
 
-    #while not rospy.is_shutdown(): 
-    i=0
-    while i < 15:
+    # Get current values of all cameras -- Consider same model of cameras
+    i = 0
+    while i < 13:
+        for cam in cameras: #Only for one camera
+            req.cam_name = cam.replace('/','') # #Camera name, For example: 'See3CAM_24CUG_062B930B' 
+            print("Camera #: " + cam.replace('/',''))
+            req.id = 2147483648 #V4L2_CTRL_FLAG_NEXT_CTRL
+            req.reqtype = 7 # CTRL_TYPE --defined in rqt_cam/source/rqt_cam/include/rqt_cam/srv_clients.h 
+            #req.index = 5
+            query_menu = camera_parameters.call(req)    
+            #out[req.cam_name][i] = query_menu
+            out[query_menu.name] = query_menu
+            break
         i +=1   
-        req.cam_name = 'See3CAM_24CUG_062B930B'
-        req.id = 2147483648
-        req.reqtype = 7
-        req.index = 5
-        a = camera_parameters.call(req)
+    
+    #print(out[1].name)
+    
+    print(out.keys())
+    print(out.values())
 
-        print(a)
+    Dictionary_example = {'Brightness': 10, 'Contrast': 15}
+
+    for cam in cameras:
+        cam_name = cam.replace('/','')
+
+        for key,value in Dictionary_example.items():
+            #print(key,value)
+            if key in out.keys():
+                print('Currently modifying: ' + key)
+                print('Default value: ', out[key].default_value)
+                print('Current value: ', out[key].cur_value)
+                print('New value: ', value)
+            #for key1, value1 in out:
+            # # wait for this sevice to be running
+                rospy.wait_for_service('SetControl')
+
+                # Create the connection to the service. Remember it's a Trigger service
+                set_camera_parameters = rospy.ServiceProxy('SetControl', set_control)
+
+                A = set_controlRequest()
+
+                A.cam_name = cam_name
+                A.id = out[key].id #9963777
+                print(out[key].id)
+                A.value = value
+
+                set_camera_parameters(A)
+
     # spin() simply keeps python from exiting until this node is stopped
-    #rospy.spin()
+    rospy.spin()
