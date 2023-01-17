@@ -15,8 +15,8 @@ def callback(data):
     np_arr = np.frombuffer(data.data, np.uint8).reshape(data.height, data.width, -1)
     im = cv2.cvtColor(np_arr, cv2.COLOR_YUV2BGR_UYVY) #COLOR_YUV2BGRA_UYVY (?) 
     
-    if im is not None:
-        print("Image successfully read")
+    #if im is not None:
+        #print("Image successfully read")
         #print(im.shape)
         #cv2.imwrite('Example.png', im)
     br = CvBridge()
@@ -28,8 +28,8 @@ def callback1(data):
     np_arr = np.frombuffer(data.data, np.uint8).reshape(data.height, data.width, -1)
     im = cv2.cvtColor(np_arr, cv2.COLOR_YUV2BGR_UYVY) #COLOR_YUV2BGRA_UYVY (?) 
     
-    if im is not None:
-        print("Image successfully read")
+    #if im is not None:
+        #print("Image successfully read")
         #print(im.shape)
         #cv2.imwrite('Example.png', im)
     br = CvBridge()
@@ -41,8 +41,8 @@ def callback2(data):
     np_arr = np.frombuffer(data.data, np.uint8).reshape(data.height, data.width, -1)
     im = cv2.cvtColor(np_arr, cv2.COLOR_YUV2BGR_UYVY) #COLOR_YUV2BGRA_UYVY (?) 
     
-    if im is not None:
-        print("Image successfully read")
+    #if im is not None:
+        #print("Image successfully read")
         #print(im.shape)
         #cv2.imwrite('Example.png', im)
     br = CvBridge()
