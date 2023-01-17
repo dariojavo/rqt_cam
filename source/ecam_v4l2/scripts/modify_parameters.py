@@ -14,6 +14,33 @@ import os
 
 #import v4l2
 
+def load_default_parameters(out):
+    
+    for cam in cameras:
+        cam_name = cam.replace('/','')
+        print('CAMERA: ' + cam_name)
+        for key,_ in out.items():
+            #print(key,value)
+            if key in ['Brightness', 'Contrast', 'Saturation', 'White Balance, Automatic', 'Gamma', 'Gain', 'Power Line Frequency', 'Sharpness', 'Auto Exposure']:
+                print('Currently modifying: ' + key)
+                print('Default value: ', out[key]['default_value'])
+
+                # Wait for service to be available
+                rospy.wait_for_service('SetControl')
+
+                # Create the connection to the service. Remember it's a Trigger service
+                set_camera_parameters = rospy.ServiceProxy('SetControl', set_control)
+
+                A = set_controlRequest()
+
+                A.cam_name = cam_name
+                A.id = out[key]['id']
+                A.value = out[key]['default_value']
+
+                set_camera_parameters(A)
+
+
+
 if __name__ == '__main__':
 
     # In ROS, nodes are uniquely named. If two nodes with the same
@@ -94,21 +121,22 @@ if __name__ == '__main__':
         f = open(dir_path + '/config/result.json')
         out = json.load(f)
         f.close
-    
+
+    load_default_parameters(out)
+
     Dictionary_example = {'Brightness': 10, 'Contrast': 15}
 
     for cam in cameras:
         cam_name = cam.replace('/','')
         print('CAMERA: ' + cam_name)
         for key,value in Dictionary_example.items():
-            #print(key,value)
             if key in out.keys():
                 print('Currently modifying: ' + key)
                 print('Default value: ', out[key]['default_value'])
                 print('Current value: ', out[key]['cur_value'])
                 print('New value: ', value)
-            #for key1, value1 in out:
-            # # wait for this sevice to be running
+            
+                # wait for this sevice to be running
                 rospy.wait_for_service('SetControl')
 
                 # Create the connection to the service. Remember it's a Trigger service
@@ -117,10 +145,7 @@ if __name__ == '__main__':
                 A = set_controlRequest()
 
                 A.cam_name = cam_name
-                A.id = out[key]['id'] #9963777
+                A.id = out[key]['id']
                 A.value = value
 
                 set_camera_parameters(A)
-
-    # spin() simply keeps python from exiting until this node is stopped
-    #rospy.spin()
