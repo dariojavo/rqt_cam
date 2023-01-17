@@ -18,23 +18,23 @@ if __name__ == '__main__':
     # name for our 'listener' node so that multiple listeners can
     # run simultaneously.
     rospy.init_node('cameras_parameters', anonymous=True)
-
-    # Create the connection to the service. Remember it's a Trigger service
-    set_camera_parameters = rospy.ServiceProxy('SetControl', set_control)
     
     # # wait for this sevice to be running
     rospy.wait_for_service('SetControl')
 
+    # Create the connection to the service. Remember it's a Trigger service
+    set_camera_parameters = rospy.ServiceProxy('SetControl', set_control)
+
     A = set_controlRequest()
 
     A.cam_name = 'See3CAM_24CUG_062B930B'
-    A.id = 9963803
-    A.value = 30
+    A.id = 9963777
+    A.value = 25
 
     set_camera_parameters(A)
 
     # Create the connection to the service. Remember it's a Trigger service
-    camera_parameters = rospy.ServiceProxy('QueryControl', query_control)
+    camera_parameters = rospy.ServiceProxy('QueryControl', query_control, persistent= True)
     
     # wait for this sevice to be running
     rospy.wait_for_service('QueryControl')
