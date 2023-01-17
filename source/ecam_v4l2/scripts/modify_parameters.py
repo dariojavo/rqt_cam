@@ -9,6 +9,9 @@ import numpy as np
 import cv2
 from cv_bridge import CvBridge
 from collections import defaultdict
+import json
+import os
+
 #import v4l2
 
 if __name__ == '__main__':
@@ -44,49 +47,65 @@ if __name__ == '__main__':
 
     # Create the connection to the service. Remember it's a Trigger service
     camera_parameters = rospy.ServiceProxy('QueryControl', query_control, persistent= True)
-
-    # Dict = {}
-    # iterator = 0
-    # cam_id = []
-    # for cam in cameras:
-    #     iterator +=1
-    #     cam_id.append(cam.replace('/',''))
-    Dict = {cam.replace('/','') for cam in cameras }
-    print(Dict)
     
-    out = {} #defaultdict(dict)
+    out = {} # Create dictionary for saving default data of cameras
 
-    # Get current values of all cameras -- Consider same model of cameras
-    i = 0
-    while i < 13:
-        for cam in cameras: #Only for one camera
-            req.cam_name = cam.replace('/','') # #Camera name, For example: 'See3CAM_24CUG_062B930B' 
-            print("Camera #: " + cam.replace('/',''))
-            req.id = 2147483648 #V4L2_CTRL_FLAG_NEXT_CTRL
-            req.reqtype = 7 # CTRL_TYPE --defined in rqt_cam/source/rqt_cam/include/rqt_cam/srv_clients.h 
-            #req.index = 5
-            query_menu = camera_parameters.call(req)    
-            #out[req.cam_name][i] = query_menu
-            out[query_menu.name] = query_menu
-            break
-        i +=1   
-    
-    #print(out[1].name)
-    
-    print(out.keys())
-    print(out.values())
+    dir_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+    print(dir_path)
+    path = dir_path + "/config/"
+    print(path)
+    # Check whether the specified path exists or not
+    isExist = os.path.exists(path)
+    if not isExist:
+    # Create a new directory because it does not exist
+        os.makedirs(path)
+        print("Configuration folder created")
 
+    if os.path.isfile(dir_path + '/config/result.json') is False:
+        # Get current values of all cameras -- Consider same model of cameras
+        i = 0
+        while i < 13:
+            for cam in cameras: #Only for one camera
+                req.cam_name = cam.replace('/','') # #Camera name, For example: 'See3CAM_24CUG_062B930B' 
+                print("Camera #: " + cam.replace('/',''))
+                req.id = 2147483648 #V4L2_CTRL_FLAG_NEXT_CTRL
+                req.reqtype = 7 # CTRL_TYPE --defined in rqt_cam/source/rqt_cam/include/rqt_cam/srv_clients.h 
+                #req.index = 5
+                query_menu = camera_parameters.call(req)    
+                #out[req.cam_name][i] = query_menu
+                out[query_menu.name] = {'id': query_menu.id, 
+                                        'type': query_menu.type, 
+                                        'name': query_menu.name,
+                                        'minimum': query_menu.minimum,
+                                        'maximum': query_menu.maximum,
+                                        'step': query_menu.step,
+                                        'default_value': query_menu.default_value, 
+                                        'cur_value': query_menu.cur_value}
+                break
+            i +=1   
+        
+        #print(out[1].name)
+        
+        #print(json.dumps(out, default=dumper, indent=2))
+        with open(dir_path + '/config/result.json', 'w') as fp:
+            json.dump(out, fp)
+
+    else:
+        f = open(dir_path + '/config/result.json')
+        out = json.load(f)
+        f.close
+    
     Dictionary_example = {'Brightness': 10, 'Contrast': 15}
 
     for cam in cameras:
         cam_name = cam.replace('/','')
-
+        print('CAMERA: ' + cam_name)
         for key,value in Dictionary_example.items():
             #print(key,value)
             if key in out.keys():
                 print('Currently modifying: ' + key)
-                print('Default value: ', out[key].default_value)
-                print('Current value: ', out[key].cur_value)
+                print('Default value: ', out[key]['default_value'])
+                print('Current value: ', out[key]['cur_value'])
                 print('New value: ', value)
             #for key1, value1 in out:
             # # wait for this sevice to be running
@@ -98,11 +117,10 @@ if __name__ == '__main__':
                 A = set_controlRequest()
 
                 A.cam_name = cam_name
-                A.id = out[key].id #9963777
-                print(out[key].id)
+                A.id = out[key]['id'] #9963777
                 A.value = value
 
                 set_camera_parameters(A)
 
     # spin() simply keeps python from exiting until this node is stopped
-    rospy.spin()
+    #rospy.spin()
