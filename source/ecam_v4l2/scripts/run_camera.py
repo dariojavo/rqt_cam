@@ -94,15 +94,15 @@ if __name__ == '__main__':
         if cont == 1:
             rospy.Subscriber(cam, image, callback)
             # This topic is created only for visualization purposes on field by using rqt_image_view
-            pub = rospy.Publisher(cam.replace('/','') + '_view', Image)
+            pub = rospy.Publisher(cam.replace('/','') + '_view', Image, queue_size=10)
         elif cont ==2:
             rospy.Subscriber(cam, image, callback1)
             # This topic is created only for visualization purposes on field by using rqt_image_view
-            pub1 = rospy.Publisher(cam.replace('/','') + '_view', Image)
+            pub1 = rospy.Publisher(cam.replace('/','') + '_view', Image, queue_size=10)
         elif cont == 3:
             rospy.Subscriber(cam, image, callback2)
             # This topic is created only for visualization purposes on field by using rqt_image_view
-            pub2 = rospy.Publisher(cam.replace('/','') + '_view', Image)
+            pub2 = rospy.Publisher(cam.replace('/','') + '_view', Image, queue_size=10)
 
     # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()
