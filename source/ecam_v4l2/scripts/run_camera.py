@@ -20,7 +20,7 @@ def callback(data):
         #print(im.shape)
         #cv2.imwrite('Example.png', im)
     br = CvBridge()
-    pub.publish(br.cv2_to_imgmsg(im))
+    pub.publish(br.cv2_to_imgmsg(im, encoding="bgr8"))
 
 def callback1(data):
 
@@ -33,7 +33,7 @@ def callback1(data):
         #print(im.shape)
         #cv2.imwrite('Example.png', im)
     br = CvBridge()
-    pub1.publish(br.cv2_to_imgmsg(im))
+    pub1.publish(br.cv2_to_imgmsg(im, encoding="bgr8"))
 
 def callback2(data):
 
@@ -46,7 +46,7 @@ def callback2(data):
         #print(im.shape)
         #cv2.imwrite('Example.png', im)
     br = CvBridge()
-    pub2.publish(br.cv2_to_imgmsg(im))
+    pub2.publish(br.cv2_to_imgmsg(im, encoding="bgr8"))
 
 if __name__ == '__main__':
 
