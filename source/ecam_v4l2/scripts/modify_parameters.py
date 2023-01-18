@@ -97,9 +97,9 @@ if __name__ == '__main__':
                 print("Camera #: " + cam.replace('/',''))
                 req.id = 2147483648 #V4L2_CTRL_FLAG_NEXT_CTRL
                 req.reqtype = 7 # CTRL_TYPE --defined in rqt_cam/source/rqt_cam/include/rqt_cam/srv_clients.h 
-                #req.index = 5
+
                 query_menu = camera_parameters.call(req)    
-                #out[req.cam_name][i] = query_menu
+
                 out[query_menu.name] = {'id': query_menu.id, 
                                         'type': query_menu.type, 
                                         'name': query_menu.name,
@@ -111,9 +111,6 @@ if __name__ == '__main__':
                 break
             i +=1   
         
-        #print(out[1].name)
-        
-        #print(json.dumps(out, default=dumper, indent=2))
         with open(dir_path + '/config/result.json', 'w') as fp:
             json.dump(out, fp)
 
@@ -123,29 +120,40 @@ if __name__ == '__main__':
         f.close
 
     load_default_parameters(out)
+    
+    while not rospy.is_shutdown():
+        
+        try:
+            new_parameters = rospy.get_param("/camera_parameters/")
+        except Exception as e:
+            print("Parameters not loaded yet", e)
 
-    Dictionary_example = {'Brightness': 10, 'Contrast': 15}
+        for cam in cameras:
 
-    for cam in cameras:
-        cam_name = cam.replace('/','')
-        print('CAMERA: ' + cam_name)
-        for key,value in Dictionary_example.items():
-            if key in out.keys():
-                print('Currently modifying: ' + key)
-                print('Default value: ', out[key]['default_value'])
-                print('Current value: ', out[key]['cur_value'])
-                print('New value: ', value)
-            
-                # wait for this sevice to be running
-                rospy.wait_for_service('SetControl')
+            cam_name = cam.replace('/','')
+            for key,value in new_parameters.items():
+                
+                if key in out.keys():
 
-                # Create the connection to the service. Remember it's a Trigger service
-                set_camera_parameters = rospy.ServiceProxy('SetControl', set_control)
+                    if new_parameters[key]['cur_value'] != out[key]['cur_value']:# Only update if the value is different than the previous one
+                        
+                        print('Camera: ', str(cam_name), key, ', new value: ', new_parameters[key]['cur_value']) 
+                    
+                        # wait for this sevice to be running
+                        rospy.wait_for_service('SetControl')
 
-                A = set_controlRequest()
+                        # Create the connection to the service. Remember it's a Trigger service
+                        set_camera_parameters = rospy.ServiceProxy('SetControl', set_control)
 
-                A.cam_name = cam_name
-                A.id = out[key]['id']
-                A.value = value
+                        A = set_controlRequest()
 
-                set_camera_parameters(A)
+                        A.cam_name = cam_name
+                        A.id = out[key]['id']
+                        A.value = new_parameters[key]['cur_value']
+
+                        set_camera_parameters(A)
+
+                        if cam == cameras[-1]:
+                            out[key]['cur_value'] = new_parameters[key]['cur_value'] #For condition in next iteration
+                            
+        rospy.sleep(0.1)
