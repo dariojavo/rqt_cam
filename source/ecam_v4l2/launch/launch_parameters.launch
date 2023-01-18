@@ -1,0 +1,7 @@
+<launch>
+    <!-- <param name ="/use_sim_time" value="true"/> -->
+    <rosparam file="$(find ecam_v4l2)/config/camera_parameters.yaml" />
+    <!-- <node pkg="ecam_v4l2" type="ecam_v4l2_node" name="ecam_v4l2_node" output="screen" required="true" /> -->
+    <node pkg="ecam_v4l2" type="run_camera.py" name="cameras_listener" output="screen" required="true" />
+    <node pkg="ecam_v4l2" type="modify_parameters.py" name="cameras_parameters" output="screen" respawn="true"  />
+</launch>
