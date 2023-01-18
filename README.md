@@ -101,3 +101,56 @@ It also provides UI for changing V4l2 controls and to switch Color space/Compres
 ## Support
 
 If you need assistance, visit at https://www.e-consystems.com/create-ticket.asp or contact us at techsupport@e-consystems.com
+
+## For running in Our sensor
+
+First, run the ros-service for the cameras.
+
+```sh
+roslaunch ecam_v4l2 launch.launch
+```
+
+Now, run all the See3CAM availables. Default parameters are saved in config/result.json and camera parameters are saved in config/camera_parameters.yaml. 
+
+```sh
+roslaunch ecam_v4l2 launch_parameters.launch
+```
+Paramaters can be loaded by changing the .yaml file or via terminal. For example, to change the parameters of the camera:
+
+```sh
+rosparam list
+```
+
+```sh
+/camera_parameters/Auto Exposure/cur_value
+/camera_parameters/Brightness/cur_value
+/camera_parameters/Contrast/cur_value
+/camera_parameters/Gain/cur_value
+/camera_parameters/Gamma/cur_value
+/camera_parameters/Power Line Frequency/cur_value
+/camera_parameters/Saturation/cur_value
+/camera_parameters/Sharpness/cur_value
+/camera_parameters/White Balance, Automatic/cur_value
+```
+
+And lets change the Brightness,
+
+```sh
+rosparam set /camera_parameters/Brightness/cur_value 1
+```
+
+**Note that parameters are changed for all the cameras**
+
+### How to view images?
+
+Using the viewer of this repo:
+
+```sh
+rqt_cam
+```
+
+Using the rename topics `_view` and rqt_image_view or rviz.
+
+
+
+
