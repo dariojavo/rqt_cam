@@ -11,42 +11,69 @@ from cv_bridge import CvBridge
 
 def callback(data):
 
-    #### direct conversion to CV2 ####
-    np_arr = np.frombuffer(data.data, np.uint8).reshape(data.height, data.width, -1)
-    im = cv2.cvtColor(np_arr, cv2.COLOR_YUV2BGR_UYVY) #COLOR_YUV2BGRA_UYVY (?) 
-    
-    #if im is not None:
-        #print("Image successfully read")
-        #print(im.shape)
-        #cv2.imwrite('Example.png', im)
-    br = CvBridge()
-    pub.publish(br.cv2_to_imgmsg(im, encoding="bgr8"))
+    format_camera = 'MJPG'
+
+    if format_camera == 'UYVY':
+        #### direct conversion to CV2 ####
+        np_arr = np.frombuffer(data.data, np.uint8).reshape(data.height, data.width, -1)
+        im = cv2.cvtColor(np_arr, cv2.COLOR_YUV2BGR_UYVY) #COLOR_YUV2BGRA_UYVY (?) 
+        
+        #if im is not None:
+            #print("Image successfully read")
+            #print(im.shape)
+            #cv2.imwrite('Example.png', im)
+        br = CvBridge()
+        pub.publish(br.cv2_to_imgmsg(im, encoding="bgr8"))
+    elif format_camera == 'MJPG':
+        np_arr = np.asarray(bytearray(data.data), dtype="uint8")
+        im = cv2.imdecode(np_arr,cv2.IMREAD_COLOR)
+        im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
+        br = CvBridge()
+        pub.publish(br.cv2_to_imgmsg(im, encoding="rgb8"))
 
 def callback1(data):
 
-    #### direct conversion to CV2 ####
-    np_arr = np.frombuffer(data.data, np.uint8).reshape(data.height, data.width, -1)
-    im = cv2.cvtColor(np_arr, cv2.COLOR_YUV2BGR_UYVY) #COLOR_YUV2BGRA_UYVY (?) 
-    
-    #if im is not None:
-        #print("Image successfully read")
-        #print(im.shape)
-        #cv2.imwrite('Example.png', im)
-    br = CvBridge()
-    pub1.publish(br.cv2_to_imgmsg(im, encoding="bgr8"))
+    format_camera = 'MJPG'
+
+    if format_camera == 'UYVY':
+        #### direct conversion to CV2 ####
+        np_arr = np.frombuffer(data.data, np.uint8).reshape(data.height, data.width, -1)
+        im = cv2.cvtColor(np_arr, cv2.COLOR_YUV2BGR_UYVY) #COLOR_YUV2BGRA_UYVY (?) 
+        
+        #if im is not None:
+            #print("Image successfully read")
+            #print(im.shape)
+            #cv2.imwrite('Example.png', im)
+        br = CvBridge()
+        pub1.publish(br.cv2_to_imgmsg(im, encoding="bgr8"))
+    elif format_camera == 'MJPG':
+        np_arr = np.asarray(bytearray(data.data), dtype="uint8")
+        im = cv2.imdecode(np_arr,cv2.IMREAD_COLOR)
+        im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
+        br = CvBridge()
+        pub1.publish(br.cv2_to_imgmsg(im, encoding="rgb8"))
 
 def callback2(data):
 
-    #### direct conversion to CV2 ####
-    np_arr = np.frombuffer(data.data, np.uint8).reshape(data.height, data.width, -1)
-    im = cv2.cvtColor(np_arr, cv2.COLOR_YUV2BGR_UYVY) #COLOR_YUV2BGRA_UYVY (?) 
-    
-    #if im is not None:
-        #print("Image successfully read")
-        #print(im.shape)
-        #cv2.imwrite('Example.png', im)
-    br = CvBridge()
-    pub2.publish(br.cv2_to_imgmsg(im, encoding="bgr8"))
+    format_camera = 'MJPG'
+
+    if format_camera == 'UYVY':
+        #### direct conversion to CV2 ####
+        np_arr = np.frombuffer(data.data, np.uint8).reshape(data.height, data.width, -1)
+        im = cv2.cvtColor(np_arr, cv2.COLOR_YUV2BGR_UYVY) #COLOR_YUV2BGRA_UYVY (?) 
+        
+        #if im is not None:
+            #print("Image successfully read")
+            #print(im.shape)
+            #cv2.imwrite('Example.png', im)
+        br = CvBridge()
+        pub2.publish(br.cv2_to_imgmsg(im, encoding="bgr8"))
+    elif format_camera == 'MJPG':
+        np_arr = np.asarray(bytearray(data.data), dtype="uint8")
+        im = cv2.imdecode(np_arr,cv2.IMREAD_COLOR)
+        im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
+        br = CvBridge()
+        pub2.publish(br.cv2_to_imgmsg(im, encoding="rgb8"))
 
 if __name__ == '__main__':
 
@@ -99,10 +126,10 @@ if __name__ == '__main__':
             rospy.Subscriber(cam, image, callback1)
             # This topic is created only for visualization purposes on field by using rqt_image_view
             pub1 = rospy.Publisher(cam.replace('/','') + '_view', Image, queue_size=10)
-        elif cont == 3:
-            rospy.Subscriber(cam, image, callback2)
-            # This topic is created only for visualization purposes on field by using rqt_image_view
-            pub2 = rospy.Publisher(cam.replace('/','') + '_view', Image, queue_size=10)
+        # elif cont == 3:
+        #     rospy.Subscriber(cam, image, callback2)
+        #     # This topic is created only for visualization purposes on field by using rqt_image_view
+        #     pub2 = rospy.Publisher(cam.replace('/','') + '_view', Image, queue_size=10)
 
     # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()
