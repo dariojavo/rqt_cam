@@ -11,7 +11,7 @@ from cv_bridge import CvBridge
 
 def callback(data):
 
-    format_camera = 'MJPG'
+    format_camera = rospy.get_param("/camera_format")
 
     if format_camera == 'UYVY':
         #### direct conversion to CV2 ####
@@ -33,17 +33,12 @@ def callback(data):
 
 def callback1(data):
 
-    format_camera = 'MJPG'
+    format_camera = rospy.get_param("/camera_format")
 
     if format_camera == 'UYVY':
         #### direct conversion to CV2 ####
         np_arr = np.frombuffer(data.data, np.uint8).reshape(data.height, data.width, -1)
         im = cv2.cvtColor(np_arr, cv2.COLOR_YUV2BGR_UYVY) #COLOR_YUV2BGRA_UYVY (?) 
-        
-        #if im is not None:
-            #print("Image successfully read")
-            #print(im.shape)
-            #cv2.imwrite('Example.png', im)
         br = CvBridge()
         pub1.publish(br.cv2_to_imgmsg(im, encoding="bgr8"))
     elif format_camera == 'MJPG':
@@ -55,17 +50,12 @@ def callback1(data):
 
 def callback2(data):
 
-    format_camera = 'MJPG'
+    format_camera = rospy.get_param("/camera_format")
 
     if format_camera == 'UYVY':
         #### direct conversion to CV2 ####
         np_arr = np.frombuffer(data.data, np.uint8).reshape(data.height, data.width, -1)
         im = cv2.cvtColor(np_arr, cv2.COLOR_YUV2BGR_UYVY) #COLOR_YUV2BGRA_UYVY (?) 
-        
-        #if im is not None:
-            #print("Image successfully read")
-            #print(im.shape)
-            #cv2.imwrite('Example.png', im)
         br = CvBridge()
         pub2.publish(br.cv2_to_imgmsg(im, encoding="bgr8"))
     elif format_camera == 'MJPG':
@@ -74,6 +64,20 @@ def callback2(data):
         im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
         br = CvBridge()
         pub2.publish(br.cv2_to_imgmsg(im, encoding="rgb8"))
+
+def read_format():
+
+    # Create the connection to the service. Remember it's a Trigger service
+    camera_format = rospy.ServiceProxy('EnumerateFormat', enum_format)
+    
+    req = enum_formatRequest()
+    req.cam_name = 'See3CAM_24CUG_3C22940B'
+    req.type = 1
+    req.height = 1280
+    req.width = 720
+    req.pix_fmt = ''
+    # Now send the request through the connection
+    print(camera_format(req))
 
 if __name__ == '__main__':
 
@@ -104,19 +108,41 @@ if __name__ == '__main__':
     print('Detected cameras: ')
     print(cameras)
 
-    # req.cam_name = 'See3CAM_24CUG_3C22940B'
-    # req.shutdown = 0 # Flase for activation / True for shutdown
+    #read_format()
 
-    # # Now send the request through the connection
-    # camera_service(req)
+    # Create the connection to the service. Remember it's a Trigger service
+    set_camera_format = rospy.ServiceProxy('SetFormat', set_format)
+
+    set_req = set_formatRequest()
+
+    try:
+        format = rospy.get_param("/camera_format")
+    except Exception as e:
+        print("Parameters not loaded yet", e)
+
 
     # Assuming 3 cameras of the same type See3CAM
     cont = 0
     for cam in cameras:
+        #Make cameras available
         req.cam_name = cam.replace('/','')
         req.shutdown = 0 # Flase for activation / True for shutdown
         # Now send the request through the connection
         camera_service(req)
+
+        #Change format
+        set_req.cam_name = cam.replace('/','')
+        set_req.format = format
+        set_req.height = 1280
+        set_req.width = 720
+        set_req.numerator = 1
+        set_req.denominator = 60
+
+        set_camera_format(set_req)
+
+        # Verify format
+        read_format()
+
         cont += 1
         if cont == 1:
             rospy.Subscriber(cam, image, callback)
@@ -126,10 +152,10 @@ if __name__ == '__main__':
             rospy.Subscriber(cam, image, callback1)
             # This topic is created only for visualization purposes on field by using rqt_image_view
             pub1 = rospy.Publisher(cam.replace('/','') + '_view', Image, queue_size=10)
-        # elif cont == 3:
-        #     rospy.Subscriber(cam, image, callback2)
-        #     # This topic is created only for visualization purposes on field by using rqt_image_view
-        #     pub2 = rospy.Publisher(cam.replace('/','') + '_view', Image, queue_size=10)
+        elif cont == 3:
+            rospy.Subscriber(cam, image, callback2)
+            # This topic is created only for visualization purposes on field by using rqt_image_view
+            pub2 = rospy.Publisher(cam.replace('/','') + '_view', Image, queue_size=10)
 
     # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()
