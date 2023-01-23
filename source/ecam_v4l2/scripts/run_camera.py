@@ -65,16 +65,16 @@ def callback2(data):
         br = CvBridge()
         pub2.publish(br.cv2_to_imgmsg(im, encoding="rgb8"))
 
-def read_format():
+def read_format(cam, num):
 
     # Create the connection to the service. Remember it's a Trigger service
     camera_format = rospy.ServiceProxy('EnumerateFormat', enum_format)
     
     req = enum_formatRequest()
-    req.cam_name = 'See3CAM_24CUG_3C22940B'
-    req.type = 1
-    req.height = 1280
-    req.width = 720
+    req.cam_name = cam
+    req.type = num
+    req.height = rospy.get_param("/camera_height")
+    req.width = rospy.get_param("/camera_width")
     req.pix_fmt = ''
     # Now send the request through the connection
     print(camera_format(req))
@@ -88,11 +88,7 @@ if __name__ == '__main__':
     # run simultaneously.
     rospy.init_node('cameras_listener', anonymous=True)
 
-    # wait for this sevice to be running
-    rospy.wait_for_service('ChooseDevice')
 
-    # Create the connection to the service. Remember it's a Trigger service
-    camera_service = rospy.ServiceProxy('ChooseDevice', camera)
 
     # Create an object of the type TriggerRequest. We nned a TriggerRequest for a Trigger service
     req = cameraRequest()
@@ -108,6 +104,12 @@ if __name__ == '__main__':
     print('Detected cameras: ')
     print(cameras)
 
+    # wait for this sevice to be running
+    rospy.wait_for_service('ChooseDevice')
+
+    # Create the connection to the service. Remember it's a Trigger service
+    camera_service = rospy.ServiceProxy('ChooseDevice', camera)
+
     #read_format()
 
     # Create the connection to the service. Remember it's a Trigger service
@@ -115,33 +117,55 @@ if __name__ == '__main__':
 
     set_req = set_formatRequest()
 
-    try:
-        format = rospy.get_param("/camera_format")
-    except Exception as e:
-        print("Parameters not loaded yet", e)
+    #try:
+    format1 = rospy.get_param("/camera_format")
+    #except Exception as e:
+    #    print("Parameters not loaded yet", e)
 
 
     # Assuming 3 cameras of the same type See3CAM
     cont = 0
     for cam in cameras:
+        
+        
         #Make cameras available
         req.cam_name = cam.replace('/','')
         req.shutdown = 0 # Flase for activation / True for shutdown
         # Now send the request through the connection
-        camera_service(req)
+        
+        print('----------------------------')
 
+        print('Camera: ' + req.cam_name)
+        
+        print('----------------------------')
+        
+        camera_service(req)
+       
+
+    # Have to do it in separate for otherwise FLAG VIDIOC_STREOM FAILURE appears
+    for cam in cameras:
+    
         #Change format
         set_req.cam_name = cam.replace('/','')
-        set_req.format = format
-        set_req.height = 1280
-        set_req.width = 720
+        set_req.format = format1
+        set_req.width = rospy.get_param("/camera_width")
+        set_req.height = rospy.get_param("/camera_height")
         set_req.numerator = 1
         set_req.denominator = 60
 
         set_camera_format(set_req)
 
+        print('----------------------------')
+        
+        print('Camera: ' + set_req.cam_name)
+
+        print('----------------------------')
+
         # Verify format
-        read_format()
+        read_format(set_req.cam_name, 1)
+
+        #Verify dimensions
+        read_format(set_req.cam_name, 2)
 
         cont += 1
         if cont == 1:
