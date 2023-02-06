@@ -1,0 +1,122 @@
+{
+    "": {
+        "id": 0,
+        "type": 0,
+        "name": "",
+        "minimum": 0,
+        "maximum": 0,
+        "step": 0,
+        "default_value": 0,
+        "cur_value": 0
+    },
+    "Brightness": {
+        "id": 9963776,
+        "type": 1,
+        "name": "Brightness",
+        "minimum": -15,
+        "maximum": 15,
+        "step": 1,
+        "default_value": 0,
+        "cur_value": 0
+    },
+    "Contrast": {
+        "id": 9963777,
+        "type": 1,
+        "name": "Contrast",
+        "minimum": 0,
+        "maximum": 30,
+        "step": 1,
+        "default_value": 9,
+        "cur_value": 9
+    },
+    "Saturation": {
+        "id": 9963778,
+        "type": 1,
+        "name": "Saturation",
+        "minimum": 0,
+        "maximum": 60,
+        "step": 1,
+        "default_value": 16,
+        "cur_value": 16
+    },
+    "White Balance, Automatic": {
+        "id": 9963788,
+        "type": 2,
+        "name": "White Balance, Automatic",
+        "minimum": 0,
+        "maximum": 0,
+        "step": 0,
+        "default_value": 1,
+        "cur_value": 1
+    },
+    "Gamma": {
+        "id": 9963792,
+        "type": 1,
+        "name": "Gamma",
+        "minimum": 40,
+        "maximum": 500,
+        "step": 1,
+        "default_value": 220,
+        "cur_value": 220
+    },
+    "Gain": {
+        "id": 9963795,
+        "type": 1,
+        "name": "Gain",
+        "minimum": 1,
+        "maximum": 40,
+        "step": 1,
+        "default_value": 1,
+        "cur_value": 1
+    },
+    "Power Line Frequency": {
+        "id": 9963800,
+        "type": 3,
+        "name": "Power Line Frequency",
+        "minimum": 0,
+        "maximum": 2,
+        "step": 0,
+        "default_value": 0,
+        "cur_value": 0
+    },
+    "White Balance Temperature": {
+        "id": 9963802,
+        "type": 1,
+        "name": "White Balance Temperature",
+        "minimum": 1000,
+        "maximum": 10000,
+        "step": 50,
+        "default_value": 4500,
+        "cur_value": 4500
+    },
+    "Sharpness": {
+        "id": 9963803,
+        "type": 1,
+        "name": "Sharpness",
+        "minimum": 0,
+        "maximum": 127,
+        "step": 1,
+        "default_value": 16,
+        "cur_value": 16
+    },
+    "Auto Exposure": {
+        "id": 10094849,
+        "type": 3,
+        "name": "Auto Exposure",
+        "minimum": 0,
+        "maximum": 3,
+        "step": 0,
+        "default_value": 0,
+        "cur_value": 0
+    },
+    "Exposure Time, Absolute": {
+        "id": 10094850,
+        "type": 1,
+        "name": "Exposure Time, Absolute",
+        "minimum": 0,
+        "maximum": 10000,
+        "step": 1,
+        "default_value": 312,
+        "cur_value": 312
+    }
+}

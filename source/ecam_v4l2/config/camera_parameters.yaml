@@ -1,0 +1,29 @@
+camera_height: 1200 #1280
+camera_width: 1920 #720
+camera_format: "MJPG" 
+camera_parameters: {
+    "Brightness": { # min -15 : max 15
+        "cur_value": 0
+    },
+    "Contrast": { # min 0 : max 30
+        "cur_value": 9
+    },
+    "Saturation": { # min 0 : max 60
+        "cur_value": 16
+    },
+    "White Balance, Automatic": { # min 0 : max 0
+        "cur_value": 1
+    },
+    "Gamma": { # min 40 : max 500
+        "cur_value": 220
+    },
+    "Gain": { # min 1 : max 40
+        "cur_value": 1
+    },
+    "Power Line Frequency": { #min 0 : max 2
+        "cur_value": 0
+    },
+    "Sharpness": { #min 0 : max 127
+        "cur_value": 16
+    }
+}
